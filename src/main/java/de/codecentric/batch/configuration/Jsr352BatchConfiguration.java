@@ -17,12 +17,16 @@ package de.codecentric.batch.configuration;
 
 import javax.sql.DataSource;
 
+import de.codecentric.batch.listener.AddListenerToJobService;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.jsr.JsrJobParametersConverter;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import de.codecentric.batch.jsr352.CustomJsrJobOperator;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -34,19 +38,27 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class Jsr352BatchConfiguration {
 	
 	@Autowired
-	private BaseConfiguration baseConfig;
+	private JobExplorer jobExplorer;
 	@Autowired
-	private BatchWebAutoConfiguration batchWebAutoConfiguration;
+	private JobRepository jobRepository;
+	@Autowired
+	private DataSource dataSource;
+	@Autowired
+	private AddListenerToJobService addListenerToJobService;
+	@Autowired
+	private TaskExecutor batchTaskExecutor;
+	@Autowired
+	private PlatformTransactionManager platformTransactionManager;
 
 	@Bean
 	public CustomJsrJobOperator jsrJobOperator(DataSource dataSource) throws Exception{
-		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(), baseConfig.jobRepository(), jsrJobParametersConverter(), batchWebAutoConfiguration.addListenerToJobService(), baseConfig.platformTransactionManager());
-		jsrJobOperator.setTaskExecutor(baseConfig.taskExecutor());
+		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(jobExplorer, jobRepository, jsrJobParametersConverter(), addListenerToJobService, platformTransactionManager);
+		jsrJobOperator.setTaskExecutor(batchTaskExecutor);
 		return jsrJobOperator;
 	}
 	
 	public JsrJobParametersConverter jsrJobParametersConverter() throws Exception{
-		JsrJobParametersConverter jsrJobParametersConverter = new JsrJobParametersConverter(baseConfig.dataSource()); 
+		JsrJobParametersConverter jsrJobParametersConverter = new JsrJobParametersConverter(dataSource);
 		jsrJobParametersConverter.afterPropertiesSet();
 		return jsrJobParametersConverter;
 	}

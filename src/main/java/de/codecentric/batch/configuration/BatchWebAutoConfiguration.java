@@ -16,6 +16,7 @@
 
 package de.codecentric.batch.configuration;
 
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
@@ -58,7 +59,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class,
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class,
 		Jsr352BatchConfiguration.class, MetricsConfiguration.class, TaskExecutorConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
@@ -66,7 +67,7 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	private Environment env;
 
 	@Autowired
-	private BaseConfiguration baseConfig;
+	private JobRegistry jobRegistry;
 
 	// ################### Listeners automatically added to each job #################################
 
@@ -106,8 +107,8 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		try {
-			for (String jobName : baseConfig.jobRegistry().getJobNames()) {
-				AbstractJob job = (AbstractJob) baseConfig.jobRegistry().getJob(jobName);
+			for (String jobName : jobRegistry.getJobNames()) {
+				AbstractJob job = (AbstractJob) jobRegistry.getJob(jobName);
 				this.addListenerToJobService().addListenerToJob(job);
 			}
 		} catch (NoSuchJobException e) {

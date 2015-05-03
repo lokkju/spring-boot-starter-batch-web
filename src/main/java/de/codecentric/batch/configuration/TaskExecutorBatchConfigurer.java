@@ -61,7 +61,7 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 	// Created by TaskExecutorConfiguration if it is used. If an alternative TaskExecutor is configured, 
 	// it will be injected here.
 	@Autowired
-	private TaskExecutor taskExecutor;
+	private TaskExecutor batchTaskExecutor;
 	
 	private DataSource dataSource;
 	private PlatformTransactionManager transactionManager;
@@ -98,7 +98,7 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 	private JobLauncher createJobLauncher() throws Exception {
 		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
 		jobLauncher.setJobRepository(jobRepository);
-		jobLauncher.setTaskExecutor(taskExecutor);
+		jobLauncher.setTaskExecutor(batchTaskExecutor);
 		jobLauncher.afterPropertiesSet();
 		return jobLauncher;
 	}

@@ -24,6 +24,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.export.Exporter;
+import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -50,8 +51,6 @@ public class MetricsConfiguration implements ListenerProvider {
 	@Autowired
 	private Environment env;
 	@Autowired
-	private BaseConfiguration baseConfig;
-	@Autowired
 	private RichGaugeRepository richGaugeRepository;
 	@Autowired
 	private GaugeService gaugeService;
@@ -59,6 +58,8 @@ public class MetricsConfiguration implements ListenerProvider {
 	private MetricWriter metricWriter;
 	@Autowired(required = false)
 	private List<Exporter> exporters;
+	@Autowired
+	private MetricRepository metricRepository;
 
 	@Bean
 	public BatchMetricsImpl batchMetrics() {
@@ -68,12 +69,12 @@ public class MetricsConfiguration implements ListenerProvider {
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
 	@Bean
 	public ReaderProcessorWriterMetricsAspect batchMetricsAspects() {
-		return new ReaderProcessorWriterMetricsAspect(baseConfig.gaugeService());
+		return new ReaderProcessorWriterMetricsAspect(gaugeService);
 	}
 
 	@Bean
 	public MetricsListener metricsListener() {
-		return new MetricsListener(gaugeService, richGaugeRepository, baseConfig.metricRepository(), exporters);
+		return new MetricsListener(gaugeService, richGaugeRepository, metricRepository, exporters);
 	}
 
 	@Override
