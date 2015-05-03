@@ -7,7 +7,9 @@ plugins {
 scmVersion {
     tag {
         prefix = ''
+        serialize = {config, version -> "$version-RELEASE"}
     }
+    versionCreator 'versionWithBranch'
 }
 group = 'com.lokkju.propertydrill'
 project.version = scmVersion.version
