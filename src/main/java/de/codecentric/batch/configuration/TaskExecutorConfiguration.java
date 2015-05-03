@@ -52,7 +52,7 @@ public class TaskExecutorConfiguration {
 	private Environment env;
 	
 	@Bean
-	public TaskExecutor batchTaskExecutor() {
+	public TaskExecutor taskExecutor() {
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 		taskExecutor.setCorePoolSize(env.getProperty("batch.core.pool.size", Integer.class, 5));
 		taskExecutor.setQueueCapacity(env.getProperty("batch.queue.capacity", Integer.class, Integer.MAX_VALUE));

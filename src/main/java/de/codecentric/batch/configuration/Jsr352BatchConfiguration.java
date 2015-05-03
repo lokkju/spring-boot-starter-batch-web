@@ -46,14 +46,14 @@ public class Jsr352BatchConfiguration {
 	@Autowired
 	private AddListenerToJobService addListenerToJobService;
 	@Autowired
-	private TaskExecutor batchTaskExecutor;
+	private TaskExecutor taskExecutor;
 	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
 
 	@Bean
 	public CustomJsrJobOperator jsrJobOperator(DataSource dataSource) throws Exception{
 		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(jobExplorer, jobRepository, jsrJobParametersConverter(), addListenerToJobService, platformTransactionManager);
-		jsrJobOperator.setTaskExecutor(batchTaskExecutor);
+		jsrJobOperator.setTaskExecutor(taskExecutor);
 		return jsrJobOperator;
 	}
 	

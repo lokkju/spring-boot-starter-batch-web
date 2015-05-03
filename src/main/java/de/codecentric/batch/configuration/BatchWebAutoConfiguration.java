@@ -16,10 +16,14 @@
 
 package de.codecentric.batch.configuration;
 
+import com.sun.javafx.tk.Toolkit;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.AbstractJob;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.NoSuchJobException;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -36,13 +40,18 @@ import de.codecentric.batch.listener.LoggingListener;
 import de.codecentric.batch.listener.ProtocolListener;
 import de.codecentric.batch.listener.RunningExecutionTrackerListener;
 import de.codecentric.batch.monitoring.RunningExecutionTracker;
+import org.springframework.core.task.TaskExecutor;
+
+import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's
  * on the classpath.
  * 
  * <p>
- * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer} and imports the web endpoint
+ * It enables batch processing, imports the batch infrastructure configuration and imports the web endpoint
  * configuration ({@link WebConfig}.<br>
  * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning that every job configuration file
  * gets its own Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, overridable via property
@@ -59,15 +68,22 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class,
+@Import({ WebConfig.class, AutomaticJobRegistrarConfiguration.class,
 		Jsr352BatchConfiguration.class, MetricsConfiguration.class, TaskExecutorConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
 	private Environment env;
 
+    @Autowired
+    private TaskExecutor taskExecutor;
+
+    @Autowired
+    private JobLauncher jobLauncher;
+
 	@Autowired
 	private JobRegistry jobRegistry;
+
 
 	// ################### Listeners automatically added to each job #################################
 
@@ -116,6 +132,19 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 		}
 	}
 
+    @PostConstruct
+    public void initialize() {
+        try {
+            Method setTaskExecutor = jobLauncher.getClass().getMethod("setTaskExecutor", TaskExecutor.class);
+            setTaskExecutor.invoke(jobLauncher, taskExecutor);
+        } catch (NoSuchMethodException e) {
+            throw new BeanInitializationException("The configured JobLauncher does not support setting a TaskExecutor",e);
+        } catch (InvocationTargetException e) {
+            throw new BeanInitializationException("The configured JobLauncher does not support setting a TaskExecutor",e);
+        } catch (IllegalAccessException e) {
+            throw new BeanInitializationException("The configured JobLauncher does not support setting a TaskExecutor",e);
+        }
+    }
 	@Override
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;

@@ -58,8 +58,11 @@ public class JavaConfigIntegrationTest {
 	@Test
 	public void testRunJob() throws InterruptedException{
 		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/simpleJob", "",Long.class);
-		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		String executionStatus = restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId);
+		assertThat(executionStatus.equals("UNKNOWN"), is(true));
+		while (!executionStatus.equals("COMPLETED")) {
 			Thread.sleep(1000);
+			executionStatus = restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId);
 		}
 		String log = restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
 		assertThat(log.length()>20,is(true));
