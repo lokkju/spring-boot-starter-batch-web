@@ -1,5 +1,9 @@
 /target
 /.settings
 /.classpath
+/gradle
 /.project
+/*.iml
+/*.ipr
+/*.iws
 .DS_Store

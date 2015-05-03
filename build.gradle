@@ -1,0 +1,55 @@
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.2.3'
+    id 'java'
+    id 'maven'
+}
+
+scmVersion {
+    tag {
+        prefix = 'spring-boot-starter-batch-web'
+    }
+}
+group = 'com.lokkju.propertydrill'
+project.version = scmVersion.version
+
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+
+description = 'spring-boot-starter-batch-web'
+
+configurations {
+    provided
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-batch', version:spring_boot_version
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version:spring_boot_version
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:spring_boot_version
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version:spring_boot_version
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version:spring_boot_version
+//    compile group: 'org.springframework', name: 'spring-messaging', version:spring_version
+//    compile group: 'org.springframework', name: 'spring-context', version:spring_version
+    compile group: 'org.apache.commons', name: 'commons-lang3', version:commons_lang3_version
+    compile group: 'io.dropwizard.metrics', name: 'metrics-core', version:dropwizard_metrics_version
+
+    provided group: 'org.projectlombok', name: 'lombok', version: lombok_version
+
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:spring_boot_version
+    testCompile group: 'commons-io', name: 'commons-io', version:commons_io_version
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
