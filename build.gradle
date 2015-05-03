@@ -6,7 +6,7 @@ plugins {
 
 scmVersion {
     tag {
-        prefix = 'spring-boot-starter-batch-web'
+        prefix = ''
     }
 }
 group = 'com.lokkju.propertydrill'
