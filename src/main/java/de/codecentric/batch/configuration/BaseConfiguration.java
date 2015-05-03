@@ -27,6 +27,7 @@ import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * I don't like autowiring of business components, I prefer to reference them from a 
@@ -52,7 +53,9 @@ public class BaseConfiguration {
 	private JobRepository jobRepository;
 	@Autowired
 	private JobLauncher jobLauncher;
-	
+	@Autowired
+	private PlatformTransactionManager platformTransactionManager;
+
 	// Created by spring-boot-starter-jdbc
 	@Autowired
 	private DataSource dataSource;
@@ -95,5 +98,6 @@ public class BaseConfiguration {
 	public MetricRepository metricRepository(){
 		return metricRepository;
 	}
+	public PlatformTransactionManager platformTransactionManager() { return platformTransactionManager; }
 	
 }

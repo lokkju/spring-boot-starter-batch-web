@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import de.codecentric.batch.jsr352.CustomJsrJobOperator;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * This configuration creates the components needed for starting JSR-352 style jobs.
@@ -36,10 +37,10 @@ public class Jsr352BatchConfiguration {
 	private BaseConfiguration baseConfig;
 	@Autowired
 	private BatchWebAutoConfiguration batchWebAutoConfiguration;
-	
+
 	@Bean
 	public CustomJsrJobOperator jsrJobOperator(DataSource dataSource) throws Exception{
-		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(), baseConfig.jobRepository(), jsrJobParametersConverter(), batchWebAutoConfiguration.addListenerToJobService());
+		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(), baseConfig.jobRepository(), jsrJobParametersConverter(), batchWebAutoConfiguration.addListenerToJobService(), baseConfig.platformTransactionManager());
 		jsrJobOperator.setTaskExecutor(baseConfig.taskExecutor());
 		return jsrJobOperator;
 	}
